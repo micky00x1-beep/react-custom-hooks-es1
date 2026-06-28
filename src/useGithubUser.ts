@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 interface GithubUser {
   login: string;
@@ -6,19 +6,16 @@ interface GithubUser {
   avatar_url: string;
 }
 
-export function useGithubUser() {
-  const [user, setUser] = useState<GithubUser | null>(null);
+export function useGithubUser(username: string) {
+  const {
+    data,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery<GithubUser>({
+    queryKey: ["githubUser", username],
 
-  const [loading, setLoading] = useState(false);
-
-  const [error, setError] = useState("");
-
-  async function fetchUser(username: string) {
-    try {
-      setLoading(true);
-
-      setError("");
-
+    queryFn: async () => {
       const response = await fetch(
         `https://api.github.com/users/${username}`
       );
@@ -27,22 +24,16 @@ export function useGithubUser() {
         throw new Error("Utente non trovato");
       }
 
-      const data = await response.json();
+      return response.json();
+    },
 
-      setUser(data);
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }
+    enabled: false,
+  });
 
   return {
-    user,
-    loading,
-    error,
-    fetchUser,
+    user: data,
+    loading: isLoading,
+    error: error ? (error as Error).message : "",
+    refetch,
   };
 }

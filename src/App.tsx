@@ -9,14 +9,14 @@ function App() {
 
   const { values, handleChange } = useLogin();
 
-  const [username, setUsername] = useState("octocat");
+  const [username, setUsername] = useState("");
 
   const {
     user,
     loading,
     error,
-    fetchUser,
-  } = useGithubUser();
+    refetch,
+  } = useGithubUser(username);
 
   const {
     position,
@@ -67,9 +67,10 @@ function App() {
       <input
         value={username}
         onChange={(e) => setUsername(e.target.value)}
+        placeholder="Github username"
       />
 
-      <button onClick={() => fetchUser(username)}>
+      <button onClick={() => refetch()}>
         Cerca
       </button>
 
@@ -86,6 +87,7 @@ function App() {
           <img
             src={user.avatar_url}
             width={150}
+            alt={user.login}
           />
         </>
       )}
@@ -113,4 +115,4 @@ function App() {
   );
 }
 
-export default App;
+export default App;       
